@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse_lazy
 
 from main.service import BlogMicroService
-
+from chat import serializers
 from . import services
 from . import serializers
 from django.shortcuts import render
@@ -29,5 +29,34 @@ class ShortUserInfoView(GenericAPIView):
 
     def get(self, request, pk):
         url = reverse_lazy('chat:short_user_info', kwargs={'pk': pk})
+        service = BlogMicroService(request, url)
+        return service.service_response()
+
+
+class UserSignInInfoView(GenericAPIView):
+    # serializer_class = serializers.UserSignInInfoSerializer
+
+    def get(self, request, pk):
+        url = reverse_lazy('chat:user_sign_in_info', kwargs={'pk': pk})
+        service = BlogMicroService(request, url)
+        # print('Mistake', service)
+        return service.service_response()
+
+
+class UserSignUpInfoView(GenericAPIView):
+    # serializer_class = serializers.UserSignInInfoSerializer
+
+    def get(self, request, pk):
+        url = reverse_lazy('chat:user_sign_up_info', kwargs={'pk': pk})
+        service = BlogMicroService(request, url)
+        # print('Mistake', service)
+        return service.service_response()
+
+
+class ListShortUserInfoView(GenericAPIView):
+    # serializer_class = ShortUserInfoSerializer
+
+    def get(self, request):
+        url = reverse_lazy('chat:list_short_user_info')
         service = BlogMicroService(request, url)
         return service.service_response()
