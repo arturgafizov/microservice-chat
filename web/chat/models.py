@@ -23,4 +23,3 @@ class Message(models.Model):
     content = models.TextField(max_length=1000)
     chat = models.ForeignKey('Chat', on_delete=models.CASCADE, related_name='messages')
     date = models.DateTimeField(auto_now_add=True, db_index=True)
-
