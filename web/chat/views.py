@@ -1,7 +1,7 @@
 import logging
 from django.utils.translation import gettext_lazy as _
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, UpdateAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.reverse import reverse_lazy
@@ -11,6 +11,10 @@ from chat import serializers
 from . import services
 from . import serializers
 from django.shortcuts import render
+
+from .models import Chat
+from .services import ChatService
+
 logger = logging.getLogger(__name__)
 
 # Create your views here.
@@ -24,7 +28,7 @@ def room(request, room_name):
     })
 
 
-class ShortUserInfoView(GenericAPIView):
+class ShortUserInfoView(UpdateAPIView):
     # serializer_class = ShortUserInfoSerializer
 
     def get(self, request, pk):
@@ -49,7 +53,6 @@ class UserSignUpInfoView(GenericAPIView):
     def get(self, request, pk):
         url = reverse_lazy('chat:user_sign_up_info', kwargs={'pk': pk})
         service = BlogMicroService(request, url)
-        # print('Mistake', service)
         return service.service_response()
 
 
@@ -60,3 +63,11 @@ class ListShortUserInfoView(GenericAPIView):
         url = reverse_lazy('chat:list_short_user_info')
         service = BlogMicroService(request, url)
         return service.service_response()
+
+
+class ChatListView(ListAPIView):
+    serializer_class = serializers.ChatSerializer
+
+    def get_queryset(self):
+        print(self.request.remote_user)
+        return ChatService.get_user_chat(self.request.remote_user)
