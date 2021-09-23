@@ -7,6 +7,7 @@ from . import managers
 class Chat(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
     name = models.CharField(max_length=100)
+    objects = models.Manager()
 
 
 class UserChat(models.Model):
