@@ -31,7 +31,7 @@ USE_HTTPS = int(os.environ.get('USE_HTTPS', 0))
 ENABLE_SENTRY = int(os.environ.get('ENABLE_SENTRY', 0))
 ENABLE_SILK = int(os.environ.get('ENABLE_SILK', 0))
 ENABLE_DEBUG_TOOLBAR = int(os.environ.get('ENABLE_DEBUG_TOOLBAR', 0))
-ENABLE_RENDERING = int(os.environ.get('ENABLE_RENDERING', 0))
+ENABLE_RENDERING = int(os.environ.get('ENABLE_RENDERING', 1))
 
 INTERNAL_IPS = []
 
@@ -80,6 +80,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'microservice_request.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'defender.middleware.FailedLoginMiddleware',
