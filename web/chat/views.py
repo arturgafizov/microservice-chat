@@ -12,19 +12,22 @@ from . import services
 from . import serializers
 from django.shortcuts import render
 
-from .models import Chat
+from .models import Chat, Message
 from .services import ChatService
-
+from main.pagination import BasePageNumberPagination
 logger = logging.getLogger(__name__)
 
 # Create your views here.
 
-def index(request):
-    return render(request, 'chat/index.html', {})
+class Index(ListAPIView):
+    def get(self, request):
+        return render(self.request, 'chat/index.html', {})
 
-def room(request, room_name):
-    return render(request, 'chat/room.html', {
-        'room_name': room_name
+class Room(ListAPIView):
+
+    def get(self, request, room_name):
+        return render(self.request, 'chat/room.html', {
+            'room_name': room_name
     })
 
 
@@ -67,7 +70,16 @@ class ListShortUserInfoView(GenericAPIView):
 
 class ChatListView(ListAPIView):
     serializer_class = serializers.ChatSerializer
+    pagination_class = BasePageNumberPagination
 
     def get_queryset(self):
         print(self.request.remote_user)
         return ChatService.get_user_chat(self.request.remote_user)
+
+
+class MessageListView(ListAPIView):
+    serializer_class = serializers.MessageSerializer
+    pagination_class = BasePageNumberPagination
+
+    def get_queryset(self):
+        return ChatService.get_messages(self.kwargs['chat_id'])
