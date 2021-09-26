@@ -9,7 +9,7 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
-    <link rel="stylesheet" href="{% static 'CSS/chat.css' %}">
+    <link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
 	</head>
 	<!--Coded With Love By Mutiullah Samim-->
 	<body>
@@ -22,8 +22,8 @@
 						</div>
 					</div>
 					<div class="card-body contacts_body">
-						<ui class="contacts">
-              {%  include 'chat/include/contact_list.html' %}
+						<ui class="contacts" id="paginationContact" data-href="{% url 'chat:chat_list_user' %}">
+
 						</ui>
 					</div>
 					<div class="card-footer"></div>
@@ -62,5 +62,16 @@
 				</div>
 			</div>
 		</div>
+<script>
+  $(document).ready(function(){
+  $.getScript('{% static 'chat/js/chat.js' %}');
+})
+</script>
+
+
 	</body>
 </html><br><br><br><br>
+
+{#{% block jquery %}#}
+{##}
+{#{% endblock %}#}
