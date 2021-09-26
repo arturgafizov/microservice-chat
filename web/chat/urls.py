@@ -11,6 +11,7 @@ router = DefaultRouter()
 urlpatterns = [
     # path('short/info/<pk>/', views.ShortUserInfoView.as_view(), name='short_user_info'),
     path('chat/list/', views.ChatListView.as_view(), name='chat_list_user'),
+    path('message/<chat_id>/', views.MessageListView.as_view(), name='message_list_user'),
     # path('short/info/', views.ListShortUserInfoView.as_view(), name='list_short_user_info'),
     # path('sign-in/info/<pk>/', views.UserSignInInfoView.as_view(), name='user_sign_in_info'),
     # path('sign-up/info/<pk>/', views.UserSignUpInfoView.as_view(), name='user_sign_up_info'),
