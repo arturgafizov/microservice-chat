@@ -15,13 +15,17 @@ class  UserChatSerializer(serializers.ModelSerializer):
 class ChatSerializer(serializers.ModelSerializer):
     user_chat = UserChatSerializer(many=True)
     last_message = serializers.SerializerMethodField('get_last_message')
+    update_date = serializers.SerializerMethodField('get_update_date')
 
     class Meta:
         model = Chat
-        fields = ('id', 'name', 'user_chat' , 'last_message')
+        fields = ('id', 'name', 'user_chat' , 'last_message', 'update_date')
 
     def get_last_message(self, obj):
         return obj.last_message
+
+    def get_update_date(self, obj):
+        return obj.update_date
 
 
 class MessageSerializer(serializers.ModelSerializer):
