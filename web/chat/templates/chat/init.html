@@ -1,0 +1,25 @@
+{#{% extends "chat/base.html" %}#}
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
+</head>
+
+<body>
+    <p></p>
+</body>
+
+</html>
+
+<script>
+  $(document).ready(function(){
+  $.getScript('{% static 'chat/js/init.js' %}');
+
+})
+</script>
+{% block script %}
+{% endblock script %}
