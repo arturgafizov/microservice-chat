@@ -14,6 +14,7 @@ class ChatAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     inlines = (UserChatInline, )
 
+
 @admin.register(UserChat)
 class UserChatAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'chat')

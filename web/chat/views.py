@@ -5,9 +5,10 @@ from rest_framework.generics import GenericAPIView, UpdateAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.reverse import reverse_lazy
-
+from rest_framework.permissions import AllowAny
 from main.service import BlogMicroService
 from chat import serializers
+from main.views import TemplateAPIView
 from . import services
 from . import serializers
 from django.shortcuts import render
@@ -23,8 +24,8 @@ class Index(ListAPIView):
     def get(self, request):
         return render(self.request, 'chat/index.html', {})
 
-class Room(ListAPIView):
 
+class Room(ListAPIView):
     def get(self, request, room_name):
         return render(self.request, 'chat/room.html', {
             'room_name': room_name
@@ -83,3 +84,19 @@ class MessageListView(ListAPIView):
 
     def get_queryset(self):
         return ChatService.get_messages(self.kwargs['chat_id'])
+
+
+class ChatInitView(GenericAPIView):
+    template_name = 'chat/init.html'
+    permission_classes = (AllowAny, )
+    serializer_class = serializers.ChatInitSerializer
+
+    def get(self, request):
+        return Response()
+
+    def post(self, request):
+        print(request.data)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
