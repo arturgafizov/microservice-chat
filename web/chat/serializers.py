@@ -33,3 +33,15 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ('author_id', 'content', 'chat', 'date')
+
+
+class ChatInitSerializer(serializers.Serializer):
+    jwt = serializers.CharField()
+
+    def validate_jwt(self, jwt: str):
+        ChatService.post_jwt(self.context['request'], jwt)
+        return jwt
+
+    def save(self):
+        print(self.validated_data)
+
