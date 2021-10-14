@@ -2,7 +2,8 @@ console.log('chat')
 
 $(function () {
   getChat()
-  $('.chatItem').click(makeActiveChat)
+
+
 });
 
 function getChat() {
@@ -21,7 +22,8 @@ function getChat() {
       }
   })
 }
-// data-id='${pagination[i].id}'
+
+
 function renderChatList(data, pagination){
     pagination.attr('data-href', data.next)
     $.each(data.results, function(i){
@@ -47,8 +49,9 @@ function renderChatList(data, pagination){
 
 function makeActiveChat() {
   if ($('.card-body').attr('chat-id') === $(this).attr('id')) return
-
+  let messageApi = '/message/' + $(this).attr('id') + '/'
   $('.card-body').attr('chat-id', $(this).attr('id'))
+  $('.card-body').attr('data-href', messageApi)
   console.log('click')
   $('.active').removeClass('active')
   $(this).addClass('active')
