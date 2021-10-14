@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db.models import Subquery, OuterRef
 from . import models
 from .models import Chat, Message
+from main.service import BlogMicroService
 
 
 class ChatService:
@@ -16,3 +17,11 @@ class ChatService:
     @staticmethod
     def get_messages(chat_id: str):
         return Message.objects.filter(chat_id=chat_id)
+
+    @staticmethod
+    def post_jwt(request, jwt: str):
+        url = BlogMicroService.reverse_url('chat:user_jwt', )
+        service = BlogMicroService(request, url)
+        response = service.service_response(data={'jwt': jwt}, method='post')
+        print(response.data)
+        return response.data
