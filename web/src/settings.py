@@ -21,6 +21,9 @@ AUTH_USER_MODEL = 'main.User'
 SUPERUSER_EMAIL = os.environ.get('SUPERUSER_EMAIL', 'test@test.com')
 SUPERUSER_PASSWORD = os.environ.get('SUPERUSER_PASSWORD', 'tester26')
 
+JWT_AUTH_COOKIE_NAME = 'chat_auth'
+JWT_TOKEN_LIFETIME_MIN = 1440
+
 MICROSERVICE_TITLE = os.environ.get('MICROSERVICE_TITLE', 'Template')
 MICROSERVICE_PREFIX = os.environ.get('MICROSERVICE_PREFIX', '')
 
