@@ -99,4 +99,6 @@ class ChatInitView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        response = Response(serializer.user_data)
+        ChatService.set_jwt_access_cookie(response, serializer.validated_data['jwt'])
+        return response
