@@ -39,7 +39,7 @@ class ChatInitSerializer(serializers.Serializer):
     jwt = serializers.CharField()
 
     def validate_jwt(self, jwt: str):
-        ChatService.post_jwt(self.context['request'], jwt)
+        self.user_data = ChatService.post_jwt(self.context['request'], jwt)
         return jwt
 
     def save(self):
