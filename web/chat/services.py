@@ -1,6 +1,9 @@
 from django.conf import settings
 from django.db.models import Subquery, OuterRef
-from . import models
+from django.utils import timezone
+from rest_framework.status import HTTP_200_OK
+from rest_framework.exceptions import ValidationError
+
 from .models import Chat, Message
 from main.service import BlogMicroService
 
@@ -22,6 +25,27 @@ class ChatService:
     def post_jwt(request, jwt: str):
         url = BlogMicroService.reverse_url('chat:user_jwt', )
         service = BlogMicroService(request, url)
+        print(service.url)
         response = service.service_response(data={'jwt': jwt}, method='post')
-        print(response.data)
+        print(response.data, response.status_code)
+        if response.status_code != HTTP_200_OK:
+            raise ValidationError(response.data)
         return response.data
+
+    @staticmethod
+    def set_jwt_access_cookie(response, access_token: str):
+        cookie_name = getattr(settings, 'JWT_AUTH_COOKIE_NAME', None)
+        access_token_expiration = timezone.now() + timezone.timedelta(minutes=settings.JWT_TOKEN_LIFETIME_MIN)
+        cookie_secure = getattr(settings, 'JWT_AUTH_SECURE', False)
+        cookie_httponly = getattr(settings, 'JWT_AUTH_HTTPONLY', True)
+        cookie_samesite = getattr(settings, 'JWT_AUTH_SAMESITE', 'Lax')
+
+        if cookie_name:
+            response.set_cookie(
+                cookie_name,
+                access_token,
+                expires=access_token_expiration,
+                secure=cookie_secure,
+                httponly=cookie_httponly,
+                samesite=cookie_samesite,
+            )
