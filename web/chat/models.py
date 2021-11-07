@@ -9,8 +9,10 @@ class UserChat(models.Model):
     user_id = models.PositiveIntegerField()
     chat = models.ForeignKey('Chat', on_delete=models.CASCADE, related_name='user_chat')
 
+    objects = models.Manager()
+
     class Meta:
-        constraints=[
+        constraints = [
             models.UniqueConstraint(fields=['user_id', 'chat'], name='unique_user_in_chat')
         ]
 
