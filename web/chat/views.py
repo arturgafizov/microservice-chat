@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse_lazy
 from rest_framework.permissions import AllowAny
 from main.service import BlogMicroService
-from chat import serializers
+from django.conf import settings
 from main.views import TemplateAPIView
 from . import services
 from . import serializers
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 
+
 class Index(ListAPIView):
     def get(self, request):
         return render(self.request, 'chat/index.html', {})
@@ -28,8 +29,7 @@ class Index(ListAPIView):
 class Room(ListAPIView):
     def get(self, request, room_name):
         return render(self.request, 'chat/room.html', {
-            'room_name': room_name
-    })
+            'room_name': room_name})
 
 
 class ShortUserInfoView(UpdateAPIView):
@@ -72,10 +72,20 @@ class ListShortUserInfoView(GenericAPIView):
 class ChatListView(ListAPIView):
     serializer_class = serializers.ChatSerializer
     pagination_class = BasePageNumberPagination
+    permission_classes = ()
 
     def get_queryset(self):
-        print(self.request.remote_user)
-        return ChatService.get_user_chat(self.request.remote_user)
+        print(self.request.COOKIES[settings.JWT_AUTH_COOKIE_NAME])
+        chat_auth = self.request.COOKIES[settings.JWT_AUTH_COOKIE_NAME]
+        # user_data: dict = ChatService.post_jwt(self.request, chat_auth)
+        self.user_data: dict = ChatService.get_or_set_cache(self.request, chat_auth)
+        return ChatService.get_user_chat(self.user_data['id'])
+
+    def get_serializer_context(self):
+        users_id: list = ChatService.get_user_chat_contacts(self.user_data['id'])
+        data: dict = super().get_serializer_context()
+        data['user_data'] = ChatService.post_users_id(self.request, users_id)
+        return data
 
 
 class MessageListView(ListAPIView):
@@ -88,7 +98,7 @@ class MessageListView(ListAPIView):
 
 class ChatInitView(GenericAPIView):
     template_name = 'chat/init.html'
-    permission_classes = (AllowAny, )
+    permission_classes = ()
     serializer_class = serializers.ChatInitSerializer
 
     def get(self, request):
