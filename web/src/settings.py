@@ -111,6 +111,16 @@ REST_FRAMEWORK = {
     ),
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_SOCKET,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
 if ENABLE_RENDERING:
     """ For build CMS using DRF """
     REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = (
