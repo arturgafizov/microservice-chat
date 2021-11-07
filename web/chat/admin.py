@@ -11,8 +11,9 @@ class UserChatInline(admin.TabularInline):
 
 @admin.register(Chat)
 class ChatAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('id', 'name', )
     inlines = (UserChatInline, )
+    readonly_fields = ('id', )
 
 
 @admin.register(UserChat)
