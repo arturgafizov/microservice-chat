@@ -1,16 +1,18 @@
 from django.conf import settings
+from src.additional_settings import cacheops_settings
+from django.core.cache import cache
 from django.db.models import Subquery, OuterRef
 from django.utils import timezone
 from rest_framework.status import HTTP_200_OK
 from rest_framework.exceptions import ValidationError
 
-from .models import Chat, Message
+from .models import Chat, Message, UserChat
 from main.service import BlogMicroService
 
 
 class ChatService:
     @staticmethod
-    def get_user_chat(user_id:int):
+    def get_user_chat(user_id: int):
         return Chat.objects.prefetch_related('user_chat').filter(user_chat__user_id=user_id).annotate(
             last_message=Subquery(Message.objects.filter(chat_id=OuterRef('id')).order_by('-date').values('content')
                                   [:1]),
@@ -27,9 +29,25 @@ class ChatService:
         service = BlogMicroService(request, url)
         print(service.url)
         response = service.service_response(data={'jwt': jwt}, method='post')
-        print(response.data, response.status_code)
+        # print(response.data, response.status_code)
         if response.status_code != HTTP_200_OK:
             raise ValidationError(response.data)
+        return response.data
+
+    @staticmethod
+    def get_or_set_cache(request, jwt: str):
+        cache_key: str = cache.make_key(jwt)
+        print(1)
+        if cache_key in cache:
+            print('in cache',)
+            return cache.get(cache_key)
+        url = BlogMicroService.reverse_url('chat:user_jwt', )
+        print('out cache')
+        service = BlogMicroService(request, url)
+        response = service.service_response(data={'jwt': jwt}, method='post')
+        if response.status_code != HTTP_200_OK:
+            raise ValidationError(response.data)
+        cache.set(cache_key, response.data, timeout=60 * 2)
         return response.data
 
     @staticmethod
@@ -49,3 +67,33 @@ class ChatService:
                 httponly=cookie_httponly,
                 samesite=cookie_samesite,
             )
+
+    @staticmethod
+    def get_or_create_chat(user_1: int, user_2: int):
+        queryset = Chat.objects.filter(user_chat__user_id=user_2).filter(user_chat__user_id=user_1)
+        if queryset.exists():
+            return queryset.first()
+        chat = Chat.objects.create(name=f'chat {user_1} + {user_2}')
+        # chat.user_chat.create(user_id=user_1)
+        # chat.user_chat.create(user_id=user_2)
+        users = (
+            UserChat(chat=chat, user_id=user_1),
+            UserChat(chat=chat, user_id=user_2),
+        )
+        UserChat.objects.bulk_create(users)
+        return chat
+
+    @staticmethod
+    def get_user_chat_contacts(user_id: int):
+        chats = Chat.objects.prefetch_related('user_chat').filter(user_chat__user_id=user_id)
+        print(UserChat.objects.filter(chat__in=chats).exclude(user_id=user_id).values_list('user_id', flat=True))
+        return list(UserChat.objects.filter(chat__in=chats).exclude(user_id=user_id).values_list('user_id', flat=True))
+
+    @staticmethod
+    def post_users_id(request, users_id: list):
+        url = BlogMicroService.reverse_url('chat:users_id', )
+        service = BlogMicroService(request, url)
+        print(service.url)
+        response = service.service_response(data={'users_id': users_id}, method='post')
+        print(response.data)
+        return response.data
