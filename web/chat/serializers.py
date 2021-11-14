@@ -8,6 +8,7 @@ from main.utils import find_dict_in_list
 
 class UserChatSerializer(serializers.ModelSerializer):
     user_data = serializers.SerializerMethodField('get_user_data')
+    # user_data = serializers.IntegerField()
 
     class Meta:
         model = UserChat
@@ -16,6 +17,13 @@ class UserChatSerializer(serializers.ModelSerializer):
     def get_user_data(self, obj) -> dict:
         # print(obj.user_id)
         return find_dict_in_list(self.context['user_data'], 'id', obj.user_id)
+
+    def to_representation(self, instance):
+        # find_dict_in_list(self.context['user_data'], 'id', instance.user_id)
+        data = super().to_representation(instance)
+        user_chat = data['user_data']
+        print(user_chat)
+        return user_chat
 
 
 class ChatSerializer(serializers.ModelSerializer):
@@ -50,7 +58,7 @@ class ChatInitSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
 
     def validate_jwt(self, jwt: str):
-        self.user_data = ChatService.post_jwt(self.context['request'], jwt)
+        self.user_data = ChatService.get_or_set_cache(self.context['request'], jwt)
         # print(self.user_data)
         return jwt
 
