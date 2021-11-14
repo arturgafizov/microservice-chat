@@ -5,6 +5,7 @@ from django.db.models import Subquery, OuterRef
 from django.utils import timezone
 from rest_framework.status import HTTP_200_OK
 from rest_framework.exceptions import ValidationError
+from channels.db import database_sync_to_async
 
 from .models import Chat, Message, UserChat
 from main.service import BlogMicroService
@@ -24,26 +25,15 @@ class ChatService:
         return Message.objects.filter(chat_id=chat_id)
 
     @staticmethod
-    def post_jwt(request, jwt: str):
-        url = BlogMicroService.reverse_url('chat:user_jwt', )
-        service = BlogMicroService(request, url)
-        print(service.url)
-        response = service.service_response(data={'jwt': jwt}, method='post')
-        # print(response.data, response.status_code)
-        if response.status_code != HTTP_200_OK:
-            raise ValidationError(response.data)
-        return response.data
-
-    @staticmethod
     def get_or_set_cache(request, jwt: str):
         cache_key: str = cache.make_key(jwt)
-        print(1)
+        # print(1)
         if cache_key in cache:
             print('in cache',)
             return cache.get(cache_key)
         url = BlogMicroService.reverse_url('chat:user_jwt', )
         print('out cache')
-        service = BlogMicroService(request, url)
+        service = BlogMicroService(url)
         response = service.service_response(data={'jwt': jwt}, method='post')
         if response.status_code != HTTP_200_OK:
             raise ValidationError(response.data)
@@ -86,14 +76,21 @@ class ChatService:
     @staticmethod
     def get_user_chat_contacts(user_id: int):
         chats = Chat.objects.prefetch_related('user_chat').filter(user_chat__user_id=user_id)
-        print(UserChat.objects.filter(chat__in=chats).exclude(user_id=user_id).values_list('user_id', flat=True))
+        # print(UserChat.objects.filter(chat__in=chats).exclude(user_id=user_id).values_list('user_id', flat=True))
         return list(UserChat.objects.filter(chat__in=chats).exclude(user_id=user_id).values_list('user_id', flat=True))
 
     @staticmethod
     def post_users_id(request, users_id: list):
         url = BlogMicroService.reverse_url('chat:users_id', )
-        service = BlogMicroService(request, url)
-        print(service.url)
+        service = BlogMicroService(url)
+        # print(service.url)
         response = service.service_response(data={'users_id': users_id}, method='post')
-        print(response.data)
+        # print(response.data)
         return response.data
+
+
+class AsyncChatService:
+    @staticmethod
+    @database_sync_to_async
+    def get_chat_ids(user_id: int):
+        return list(Chat.objects.filter(user_chat__user_id=user_id).values_list('id', flat=True))
