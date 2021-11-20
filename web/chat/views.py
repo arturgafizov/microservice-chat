@@ -75,7 +75,7 @@ class ChatListView(ListAPIView):
     permission_classes = ()
 
     def get_queryset(self):
-        print(self.request.COOKIES[settings.JWT_AUTH_COOKIE_NAME])
+        # print(self.request.COOKIES[settings.JWT_AUTH_COOKIE_NAME])
         chat_auth = self.request.COOKIES[settings.JWT_AUTH_COOKIE_NAME]
         # user_data: dict = ChatService.post_jwt(self.request, chat_auth)
         self.user_data: dict = ChatService.get_or_set_cache(self.request, chat_auth)
@@ -105,7 +105,7 @@ class ChatInitView(GenericAPIView):
         return Response()
 
     def post(self, request):
-        print(request.data)
+        # print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
