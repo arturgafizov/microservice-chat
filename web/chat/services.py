@@ -94,3 +94,8 @@ class AsyncChatService:
     @database_sync_to_async
     def get_chat_ids(user_id: int):
         return list(Chat.objects.filter(user_chat__user_id=user_id).values_list('id', flat=True))
+
+    @staticmethod
+    @database_sync_to_async
+    def save_message(user_id: int, message: str, chat_id: str):
+        return Message.objects.create(author_id=user_id, content=message, chat_id=chat_id)
