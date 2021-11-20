@@ -1,9 +1,9 @@
-import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+from collections import namedtuple
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .services import AsyncChatService
 
 
-class ChatConsumer(AsyncWebsocketConsumer):
+class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         # Join room group
 
@@ -14,38 +14,55 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def init_user_chat(self):
         self.chats: list = await AsyncChatService.get_chat_ids(self.user['id'])
-        # print(chats)
+        # print(self.chats)
         for chat in self.chats:
             await self.channel_layer.group_add(str(chat), self.channel_name)
 
     async def disconnect(self, close_code):
         # Leave room group
-        pass
-        # await self.channel_layer.group_discard(
-        #     self.room_group_name,
-        #     self.channel_name
-        # )
+
+        for chat in self.chats:
+            await self.channel_layer.group_discard(str(chat), self.channel_name)
+
+    async def new_message(self, data):
+        # print('new message', data)
+        user_id = namedtuple('user_id', ['id'])
+        user = user_id(self.user['id'])
+        message = await AsyncChatService.save_message(user.id, data['message'], data['chat_id'])
+        # print(message)
+        response: dict = {
+            'command': 'new_message',
+            'author_id': message.author_id,
+            'chat_id': message.chat_id,
+            'content': message.content,
+            'date': message.date.strftime('%H:%M'),
+        }
+        await self.channel_layer.group_send(
+            message.chat_id,
+            {
+                'type': 'chat_message',
+                'response': response,
+            }
+        )
+
+    async def write_message(self, data):
+        print('write message', data)
+
+    command = {
+        'new_message': new_message,
+        'write_message': write_message,
+    }
 
     # Receive message from WebSocket
     async def receive_json(self, data: dict, **kwargs):
-        print('receive_json', data, kwargs)
-        # text_data_json = json.loads(data)
-        # message = text_data_json['message']
+        await self.command[data['command']](self, data)
 
         # Send message to room group
-        # await self.channel_layer.group_send(
-        #     self.room_group_name,
-        #     {
-        #         'type': 'chat_message',
-        #         'message': message
-        #     }
-        # )
 
     # Receive message from room group
     async def chat_message(self, event):
-        message = event['message']
-
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
+        print('event', event)
+        data: dict = event['response']
+        #
+        # # Send message to WebSocket
+        await self.send_json(data)
