@@ -22,7 +22,7 @@ class UserChatSerializer(serializers.ModelSerializer):
         # find_dict_in_list(self.context['user_data'], 'id', instance.user_id)
         data = super().to_representation(instance)
         user_chat = data['user_data']
-        print(user_chat)
+        # print(user_chat)
         return user_chat
 
 
