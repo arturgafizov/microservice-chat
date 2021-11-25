@@ -35,6 +35,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             'author_id': message.author_id,
             'chat_id': message.chat_id,
             'content': message.content,
+            'avatar': self.user['avatar_url'],
             'date': message.date.strftime('%H:%M'),
         }
         await self.channel_layer.group_send(
