@@ -24,6 +24,9 @@ class Message(models.Model):
     date = models.DateTimeField(auto_now_add=True, db_index=True)
     objects = models.Manager()
 
+    class Meta:
+        ordering = ('-date', )
+
 
 class Chat(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
