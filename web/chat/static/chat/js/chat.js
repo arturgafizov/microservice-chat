@@ -49,7 +49,7 @@ function renderChatList(data, pagination){
       for (let j of data.results[i].user_chat) {
         if (j.id) contactUser = j
       }
-      console.log(contactUser)
+      // console.log(contactUser)
       let block = `
           <li class="chatItem" id="${data.results[i].id}">
             <div class="d-flex bd-highlight">
@@ -65,40 +65,47 @@ function renderChatList(data, pagination){
           </li>
       `
       pagination.append(block)
-
     })
   $('.chatItem').click(makeActiveChat)
 }
 
+function timeToday() {
+  let date = new Date
+  let date2 = new Date
+  // console.log(date.getDate())
+  // console.log(Date.now()/(1000*3600*24)/365)
+  let dateDiff = date2.getDate()+1 - date.getDate()
+  // console.log(dateDiff)
+  if (dateDiff === 1) {
+    console.log('Today')
+
+  }
+  if (dateDiff === 2) {
+    console.log('Yesterday')
+
+  }
+  else {
+    date.getDate()
+  }
+}
+
+
 function userMessageRender(data, pagination) {
     pagination.attr('data-href', data.next)
     $.each(data.results, function (i){
-      // console.log('DATA', data.results[i])
+      console.log('DATA', data.results[i])
+      let contactUser = data.results[i].author
 
-      // console.log(data.results[i].id)
       let currentUser = JSON.parse(localStorage.getItem('user'))
       let message = ''
       let date = new Date(data.results[i].date)
-      console.log(date.getDay(), date.getHours(),)
+      // console.log(date.getDay(), date.getHours(),date.getMinutes(), date.getSeconds())
       if (data.results[i].author_id === currentUser.id) {
-          message = `
-          <div class="d-flex justify-content-start mb-4">
-            <div class="img_cont_msg">
-              <img src="${currentUser.avatar_url}" class="rounded-circle user_img_msg">
-            </div>
-            <div class="msg_cotainer">
-              ${data.results[i].content}
-              <span class="msg_time">${data.results[i].date} Today</span>
-            </div>
-          </div>
-            `
-      }
-      else {
           message = `
             <div class="d-flex justify-content-end mb-4">
               <div class="msg_cotainer_send">
                 ${data.results[i].content}
-                <span class="msg_time_send">${data.results[i].date}, Today</span>
+                <span class="msg_time_send">${date.toLocaleTimeString()}, Day ${timeToday(date)}</span>
               </div>
               <div class="img_cont_msg">
                 <img
@@ -107,6 +114,19 @@ function userMessageRender(data, pagination) {
               </div>
             </div>
            `
+      }
+      else {
+          message = `
+          <div class="d-flex justify-content-start mb-4">
+            <div class="img_cont_msg">
+              <img src="${contactUser.avatar_url}" class="rounded-circle user_img_msg">
+            </div>
+            <div class="msg_cotainer">
+              ${data.results[i].content}
+              <span class="msg_time">${date.toLocaleTimeString()}, Day ${timeToday(date)}</span>
+            </div>
+          </div>
+            `
        }
       pagination.prepend(message)
     })
