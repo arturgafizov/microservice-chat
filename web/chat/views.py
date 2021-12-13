@@ -84,7 +84,7 @@ class ChatListView(ListAPIView):
     def get_serializer_context(self):
         users_id: list = ChatService.get_user_chat_contacts(self.user_data['id'])
         data: dict = super().get_serializer_context()
-        data['user_data'] = ChatService.post_users_id(self.request, users_id)
+        data['user_data'] = ChatService.post_users_id(users_id)
         return data
 
 
