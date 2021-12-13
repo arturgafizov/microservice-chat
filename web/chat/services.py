@@ -27,7 +27,6 @@ class ChatService:
     @staticmethod
     def get_or_set_cache(request, jwt: str):
         cache_key: str = cache.make_key(jwt)
-        # print(1)
         if cache_key in cache:
             print('in cache',)
             return cache.get(cache_key)
@@ -64,8 +63,6 @@ class ChatService:
         if queryset.exists():
             return queryset.first()
         chat = Chat.objects.create(name=f'chat {user_1} + {user_2}')
-        # chat.user_chat.create(user_id=user_1)
-        # chat.user_chat.create(user_id=user_2)
         users = (
             UserChat(chat=chat, user_id=user_1),
             UserChat(chat=chat, user_id=user_2),
@@ -76,17 +73,28 @@ class ChatService:
     @staticmethod
     def get_user_chat_contacts(user_id: int):
         chats = Chat.objects.prefetch_related('user_chat').filter(user_chat__user_id=user_id)
-        # print(UserChat.objects.filter(chat__in=chats).exclude(user_id=user_id).values_list('user_id', flat=True))
         return list(UserChat.objects.filter(chat__in=chats).exclude(user_id=user_id).values_list('user_id', flat=True))
 
     @staticmethod
-    def post_users_id(request, users_id: list):
+    def post_users_id(users_id: list):
+        user_data: list[dict] = []
+        request_users: list[int] = []
+        for user_id in users_id:
+            cache_key: str = cache.make_key('user', user_id)
+            if cache_key in cache:
+                user_data.append(cache.get(cache_key))
+            else:
+                request_users.append(user_id)
+        if not request_users:
+            return user_data
         url = BlogMicroService.reverse_url('chat:users_id', )
         service = BlogMicroService(url)
-        # print(service.url)
-        response = service.service_response(data={'users_id': users_id}, method='post')
-        # print(response.data)
-        return response.data
+        response = service.service_response(data={'users_id': request_users}, method='post')
+        for user in response.data:
+            cache_key: str = cache.make_key('user', user['id'])
+            cache.set(cache_key, user, timeout=120)
+            user_data.append(user)
+        return user_data
 
 
 class AsyncChatService:
