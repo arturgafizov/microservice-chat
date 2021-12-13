@@ -47,10 +47,16 @@ class ChatSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField('get_author')
 
     class Meta:
         model = Message
-        fields = ('author_id', 'content', 'chat', 'date')
+        fields = ('author_id', 'content', 'chat', 'date', 'author')
+
+    def get_author(self, obj):
+        print(obj)
+        users = ChatService.post_users_id([obj.author_id])
+        return users[0]
 
 
 class ChatInitSerializer(serializers.Serializer):
@@ -63,9 +69,7 @@ class ChatInitSerializer(serializers.Serializer):
         return jwt
 
     def save(self):
-        # print(self.validated_data)
         user_1 = self.user_data.get('id')
         user_2 = self.validated_data.get('user_id')
-        # print(user_1, user_2)
         chat = ChatService.get_or_create_chat(user_1, user_2)
         print(chat)
