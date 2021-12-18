@@ -69,16 +69,16 @@ function renderChatList(data, pagination){
   $('.chatItem').click(makeActiveChat)
 }
 
-function timeToday() {
-  let date = new Date
-  let date2 = new Date
+function formaDate(messageDate) {
+  let currentDate = new Date()
+
   // console.log(date.getDate())
   // console.log(Date.now()/(1000*3600*24)/365)
-  let dateDiff = date2.getDate()+1 - date.getDate()
+  let dateDiff = currentDate.getDate() - date.getDate()
   // console.log(dateDiff)
   if (dateDiff === 1) {
     console.log('Today')
-
+    return messageDate
   }
   if (dateDiff === 2) {
     console.log('Yesterday')
@@ -105,7 +105,7 @@ function userMessageRender(data, pagination) {
             <div class="d-flex justify-content-end mb-4">
               <div class="msg_cotainer_send">
                 ${data.results[i].content}
-                <span class="msg_time_send">${date.toLocaleTimeString()}, Day ${timeToday(date)}</span>
+                <span class="msg_time_send">${date.toLocaleTimeString()}, Day ${formaToday(date)}</span>
               </div>
               <div class="img_cont_msg">
                 <img
@@ -123,7 +123,7 @@ function userMessageRender(data, pagination) {
             </div>
             <div class="msg_cotainer">
               ${data.results[i].content}
-              <span class="msg_time">${date.toLocaleTimeString()}, Day ${timeToday(date)}</span>
+              <span class="msg_time">${formaDate(date)}</span>
             </div>
           </div>
             `
