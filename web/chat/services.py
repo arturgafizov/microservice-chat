@@ -9,6 +9,7 @@ from channels.db import database_sync_to_async
 
 from .models import Chat, Message, UserChat
 from main.service import BlogMicroService
+from main.models import UserData
 
 
 class ChatService:
@@ -25,11 +26,11 @@ class ChatService:
         return Message.objects.filter(chat_id=chat_id)
 
     @staticmethod
-    def get_or_set_cache(request, jwt: str):
+    def get_or_set_cache(jwt: str) -> UserData:
         cache_key: str = cache.make_key(jwt)
         if cache_key in cache:
             print('in cache',)
-            return cache.get(cache_key)
+            return UserData(**cache.get(cache_key))
         url = BlogMicroService.reverse_url('chat:user_jwt', )
         print('out cache')
         service = BlogMicroService(url)
@@ -37,7 +38,7 @@ class ChatService:
         if response.status_code != HTTP_200_OK:
             raise ValidationError(response.data)
         cache.set(cache_key, response.data, timeout=60 * 2)
-        return response.data
+        return UserData(**response.data)
 
     @staticmethod
     def set_jwt_access_cookie(response, access_token: str):
