@@ -11,7 +11,7 @@ class CookeAuthMiddlWare:
         if not user_jwt:
             return
         # print(user_data)
-        scope['user_data'] = ChatService.get_or_set_cache(None, user_jwt)
+        scope['user_data'] = ChatService.get_or_set_cache(user_jwt)
         return await self.app(scope, receive, send)
 
 
