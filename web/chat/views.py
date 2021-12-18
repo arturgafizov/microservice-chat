@@ -16,6 +16,7 @@ from django.shortcuts import render
 from .models import Chat, Message
 from .services import ChatService
 from main.pagination import BasePageNumberPagination
+from main.models import UserData
 logger = logging.getLogger(__name__)
 
 # Create your views here.
@@ -37,7 +38,7 @@ class ShortUserInfoView(UpdateAPIView):
 
     def get(self, request, pk):
         url = reverse_lazy('chat:short_user_info', kwargs={'pk': pk})
-        service = BlogMicroService(request, url)
+        service = BlogMicroService(url)
         return service.service_response()
 
 
@@ -46,7 +47,7 @@ class UserSignInInfoView(GenericAPIView):
 
     def get(self, request, pk):
         url = reverse_lazy('chat:user_sign_in_info', kwargs={'pk': pk})
-        service = BlogMicroService(request, url)
+        service = BlogMicroService(url)
         # print('Mistake', service)
         return service.service_response()
 
@@ -56,7 +57,7 @@ class UserSignUpInfoView(GenericAPIView):
 
     def get(self, request, pk):
         url = reverse_lazy('chat:user_sign_up_info', kwargs={'pk': pk})
-        service = BlogMicroService(request, url)
+        service = BlogMicroService(url)
         return service.service_response()
 
 
@@ -65,7 +66,7 @@ class ListShortUserInfoView(GenericAPIView):
 
     def get(self, request):
         url = reverse_lazy('chat:list_short_user_info')
-        service = BlogMicroService(request, url)
+        service = BlogMicroService(url)
         return service.service_response()
 
 
@@ -78,11 +79,11 @@ class ChatListView(ListAPIView):
         # print(self.request.COOKIES[settings.JWT_AUTH_COOKIE_NAME])
         chat_auth = self.request.COOKIES[settings.JWT_AUTH_COOKIE_NAME]
         # user_data: dict = ChatService.post_jwt(self.request, chat_auth)
-        self.user_data: dict = ChatService.get_or_set_cache(self.request, chat_auth)
-        return ChatService.get_user_chat(self.user_data['id'])
+        self.user_data: UserData = ChatService.get_or_set_cache(chat_auth)
+        return ChatService.get_user_chat(self.user_data.id)
 
     def get_serializer_context(self):
-        users_id: list = ChatService.get_user_chat_contacts(self.user_data['id'])
+        users_id: list = ChatService.get_user_chat_contacts(self.user_data.id)
         data: dict = super().get_serializer_context()
         data['user_data'] = ChatService.post_users_id(users_id)
         return data
