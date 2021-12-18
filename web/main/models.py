@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from dataclasses import dataclass
 
 from .managers import UserManager
 
@@ -24,3 +25,12 @@ class User(AbstractUser):
 
     def full_name(self):
         return super().get_full_name()
+
+
+@dataclass
+class UserData:
+    id: int
+    avatar_url: str
+    full_name: str
+    profile_url: str
+    email: str
