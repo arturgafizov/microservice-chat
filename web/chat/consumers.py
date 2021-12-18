@@ -1,6 +1,7 @@
 from collections import namedtuple
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .services import AsyncChatService
+from main.models import UserData
 
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
@@ -8,12 +9,12 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         # Join room group
 
         print('user-data', self.scope['user_data'])
-        self.user = self.scope['user_data']
+        self.user: UserData = self.scope['user_data']
         await self.init_user_chat()
         await self.accept()
 
     async def init_user_chat(self):
-        self.chats: list = await AsyncChatService.get_chat_ids(self.user['id'])
+        self.chats: list = await AsyncChatService.get_chat_ids(self.user.id)
         # print(self.chats)
         for chat in self.chats:
             await self.channel_layer.group_add(str(chat), self.channel_name)
@@ -26,16 +27,14 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def new_message(self, data):
         # print('new message', data)
-        user_id = namedtuple('user_id', ['id'])
-        user = user_id(self.user['id'])
-        message = await AsyncChatService.save_message(user.id, data['message'], data['chat_id'])
+        message = await AsyncChatService.save_message(self.user.id, data['message'], data['chat_id'])
         # print(message)
         response: dict = {
             'command': 'new_message',
             'author_id': message.author_id,
             'chat_id': message.chat_id,
             'content': message.content,
-            'avatar': self.user['avatar_url'],
+            'avatar': self.user.avatar_url,
             'date': message.date.strftime('%H:%M'),
         }
         await self.channel_layer.group_send(
