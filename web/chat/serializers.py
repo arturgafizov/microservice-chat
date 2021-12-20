@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from chat.models import Chat, UserChat, Message
 from . services import ChatService
 from main.utils import find_dict_in_list
+from dataclasses import asdict
 
 
 class UserChatSerializer(serializers.ModelSerializer):
@@ -64,12 +65,13 @@ class ChatInitSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
 
     def validate_jwt(self, jwt: str):
-        self.user_data = ChatService.get_or_set_cache(self.context['request'], jwt)
+        # print('JWT', jwt)
+        self.user_data = ChatService.get_or_set_cache(jwt)
         # print(self.user_data)
         return jwt
 
     def save(self):
-        user_1 = self.user_data.get('id')
+        user_1 = self.user_data.id
         user_2 = self.validated_data.get('user_id')
         chat = ChatService.get_or_create_chat(user_1, user_2)
         print(chat)
