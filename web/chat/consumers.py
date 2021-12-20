@@ -18,6 +18,17 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         # print(self.chats)
         for chat in self.chats:
             await self.channel_layer.group_add(str(chat), self.channel_name)
+            await self.channel_layer.group_send(str(chat),
+                {
+                    'type': 'user_status',
+                    'response': {
+                        'command': 'user_status',
+                        'online': True,
+                        'user_id': self.user.id,
+                        'chat_id': str(chat),
+                    },
+                }
+                                                )
 
     async def disconnect(self, close_code):
         # Leave room group
@@ -65,4 +76,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         data: dict = event['response']
         #
         # # Send message to WebSocket
+        await self.send_json(data)
+
+    async def user_status(self, event: dict):
+        data: dict = event['response']
         await self.send_json(data)
