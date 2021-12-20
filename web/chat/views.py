@@ -18,7 +18,7 @@ from .services import ChatService
 from main.pagination import BasePageNumberPagination
 from main.models import UserData
 logger = logging.getLogger(__name__)
-
+from dataclasses import asdict
 # Create your views here.
 
 
@@ -101,6 +101,7 @@ class ChatInitView(GenericAPIView):
     template_name = 'chat/init.html'
     permission_classes = ()
     serializer_class = serializers.ChatInitSerializer
+    # __slots__ =
 
     def get(self, request):
         return Response()
@@ -110,6 +111,6 @@ class ChatInitView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        response = Response(serializer.user_data)
+        response = Response(asdict(serializer.user_data))
         ChatService.set_jwt_access_cookie(response, serializer.validated_data['jwt'])
         return response
