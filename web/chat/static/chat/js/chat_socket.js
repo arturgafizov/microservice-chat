@@ -50,14 +50,27 @@ function newMessage(data) {
   }
 }
 
+function changeUserStatus(data) {
+   console.log('user_status', data)
+
+
+}
+
+
+
 function receiveMessage(e)   {
   console.log('receiveMessage', e.data)
   let data = JSON.parse(e.data)
   switch (data.command) {
     case('new_message'):
       newMessage(data)
+      break;
+    case('user_status'):
+      changeUserStatus(data)
       break
   }
+
+
 }
 
 function enter () {
