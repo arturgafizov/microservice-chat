@@ -99,10 +99,11 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'microservice_request.permissions.HasApiKeyOrIsAuthenticated',
-    ),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'microservice_request.permissions.HasApiKeyOrIsAuthenticated',
+    # ),
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
     #     'rest_framework.authentication.SessionAuthentication',
     # ),
